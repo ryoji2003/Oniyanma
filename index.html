@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>カスタムアンケートフォーム</title>
+  <style>
+    /* --- CSS: デザイン設定 --- */
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background-color: #f0ebf8;
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .form-container {
+      background-color: white;
+      width: 100%;
+      max-width: 640px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      overflow: hidden;
+      border-top: 10px solid #673ab7;
+    }
+
+    .header {
+      padding: 24px;
+      border-bottom: 1px solid #dadce0;
+    }
+
+    h1 {
+      margin: 0 0 12px 0;
+      font-size: 32px;
+      color: #202124;
+    }
+
+    .description {
+      font-size: 14px;
+      color: #202124;
+      white-space: pre-wrap;
+      line-height: 1.5;
+    }
+
+    .question-box {
+      padding: 24px;
+      margin: 12px 0;
+      border-bottom: 1px solid #f0f0f0; /* 区切り線を追加 */
+    }
+
+    .question-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 16px;
+    }
+
+    /* 必須マーク */
+    .required-mark {
+      color: #d93025;
+    }
+
+    /* ラジオボタンのスタイル */
+    .options label {
+      display: block;
+      padding: 8px 0;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .options input[type="radio"] {
+      margin-right: 10px;
+      transform: scale(1.2);
+    }
+
+    /* テキスト入力欄のスタイル (Googleフォーム風) */
+    .text-input {
+      width: 100%; /* 横幅いっぱい */
+      border: none;
+      border-bottom: 1px solid #dadce0; /* 下線のみ */
+      padding: 8px 0;
+      font-size: 14px;
+      transition: border-bottom 0.3s;
+      outline: none;
+    }
+
+    .text-input:focus {
+      border-bottom: 2px solid #673ab7; /* フォーカス時に太く紫に */
+    }
+
+    .footer {
+      padding: 24px;
+      display: flex;
+      justify-content: flex-start;
+    }
+
+    button {
+      background-color: #673ab7;
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: #532c92;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-container">
+    <div class="header">
+      <h1>自動作成されたアンケート</h1>
+      <p class="description">これはHTML/JSによって作成されたフォームです。
+ご協力いただきありがとうございます。
+この文章はコード内で自由に変更可能です。</p>
+    </div>
+
+    <form id="myForm">
+      <div class="question-box">
+        <div class="question-title">好きなフルーツを選んでください <span class="required-mark">*</span></div>
+        <div class="options">
+          <label><input type="radio" name="fruit" value="りんご" required> りんご</label>
+          <label><input type="radio" name="fruit" value="バナナ"> バナナ</label>
+          <label><input type="radio" name="fruit" value="みかん"> みかん</label>
+          <label><input type="radio" name="fruit" value="ぶどう"> ぶどう</label>
+        </div>
+      </div>
+
+      <div class="question-box">
+        <div class="question-title">好きな焼肉の部位を教えてください</div>
+        <input type="text" name="yakiniku" class="text-input" placeholder="回答を入力" required>
+      </div>
+
+      <div class="footer">
+        <button type="submit">回答を保存 (JSON)</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // --- JavaScript: ロジック設定 ---
+    
+    const form = document.getElementById('myForm');
+
+    form.addEventListener('submit', function(event) {
+      event.preventDefault(); 
+
+      // 1. フォームデータの取得
+      const formData = new FormData(form);
+      
+      // 各回答を取得
+      const selectedFruit = formData.get('fruit');
+      const yakinikuAnswer = formData.get('yakiniku'); // 名前 'yakiniku' の値を取得
+
+      // 2. JSONデータの構築
+      const data = {
+        title: "自動作成されたアンケート",
+        timestamp: new Date().toISOString(),
+        answers: {
+          "好きなフルーツを選んでください": selectedFruit,
+          "好きな焼肉の部位を教えてください": yakinikuAnswer // ここに追加
+        }
+      };
+
+      // 3. ダウンロード処理
+      const jsonString = JSON.stringify(data, null, 2);
+      const blob = new Blob([jsonString], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      // ファイル名に日時を入れてユニークにする
+      a.download = `response_${Date.now()}.json`; 
+      document.body.appendChild(a);
+      a.click();
+
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      alert('回答ありがとうございました！JSONファイルが保存されました。');
+      form.reset();
+    });
+  </script>
+
+</body>
+</html>
