@@ -4,7 +4,7 @@ import json
 # ---------------------------------------------------------
 # 設定項目
 # ---------------------------------------------------------
-INPUT_CSV_FILE = "/data.csv"   # 変換元のCSVファイル名
+INPUT_CSV_FILE = "/Users/mirei/IdeaProjects/practical_b/src/main/resources/data/exhibits.csv"   # 変換元のCSVファイル名
 OUTPUT_JSON_FILE = "data.json" # 出力先のJSONファイル名
 
 def csv_to_json(csv_path, json_path):
