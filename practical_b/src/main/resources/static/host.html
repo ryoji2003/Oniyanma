@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Festival - Host Control</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans JP', sans-serif; }
+        .timer-ring {
+            stroke-dasharray: 283;
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 1s linear;
+        }
+        .state-badge {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .question-preview {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div id="app" class="max-w-4xl mx-auto p-4">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-6 py-4 border-b border-gray-700">
+            <h1 class="text-2xl font-bold">Quiz Festival - Host</h1>
+            <div class="flex items-center gap-4">
+                <span id="connectionStatus" class="px-3 py-1 rounded-full text-sm bg-red-600">Disconnected</span>
+                <span id="stateDisplay" class="state-badge px-3 py-1 rounded-full text-sm bg-gray-600">IDLE</span>
+            </div>
+        </header>
+
+        <!-- Main Control Panel -->
+        <main id="mainContent">
+            <!-- Stats Bar -->
+            <div class="grid grid-cols-3 gap-4 mb-6">
+                <div class="bg-gray-800 rounded-lg p-4 text-center">
+                    <div class="text-3xl font-bold text-blue-400" id="playerCount">0</div>
+                    <div class="text-gray-400 text-sm">Participants</div>
+                </div>
+                <div class="bg-gray-800 rounded-lg p-4 text-center">
+                    <div class="text-3xl font-bold text-green-400" id="questionProgress">0/0</div>
+                    <div class="text-gray-400 text-sm">Question</div>
+                </div>
+                <div class="bg-gray-800 rounded-lg p-4 text-center">
+                    <div class="text-3xl font-bold text-yellow-400" id="answerCount">0</div>
+                    <div class="text-gray-400 text-sm">Answered</div>
+                </div>
+            </div>
+
+            <!-- Timer Display -->
+            <div id="timerSection" class="hidden mb-6">
+                <div class="bg-gray-800 rounded-lg p-6 flex items-center justify-center">
+                    <svg class="w-32 h-32 transform -rotate-90">
+                        <circle cx="64" cy="64" r="45" stroke="#374151" stroke-width="8" fill="none"/>
+                        <circle id="timerRing" class="timer-ring" cx="64" cy="64" r="45"
+                                stroke="#10B981" stroke-width="8" fill="none"/>
+                    </svg>
+                    <div class="absolute text-4xl font-bold" id="timerText">60</div>
+                </div>
+            </div>
+
+            <!-- Current Question Preview -->
+            <div id="questionPreview" class="hidden mb-6">
+                <div class="question-preview rounded-lg p-6 text-white">
+                    <div class="text-sm opacity-75 mb-2">Current Question</div>
+                    <div class="text-xl font-bold mb-4" id="questionText"></div>
+                    <div class="grid grid-cols-2 gap-3" id="choicesDisplay"></div>
+                </div>
+            </div>
+
+            <!-- Control Buttons -->
+            <div id="controls" class="space-y-4">
+                <!-- IDLE State -->
+                <div id="idleControls">
+                    <button onclick="startQuiz()"
+                            class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-lg text-xl transition">
+                        Start Quiz
+                    </button>
+                    <p class="text-gray-400 text-center mt-2">Click to open quiz session for participants</p>
+                </div>
+
+                <!-- WAIT_JOIN State -->
+                <div id="waitJoinControls" class="hidden">
+                    <div class="bg-blue-900 rounded-lg p-6 text-center mb-4">
+                        <div class="text-lg mb-2">Waiting for participants to join...</div>
+                        <div class="text-4xl font-bold text-blue-400" id="waitPlayerCount">0</div>
+                        <div class="text-gray-400">players joined</div>
+                    </div>
+                    <button onclick="beginFirstQuestion()"
+                            class="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-4 px-6 rounded-lg text-xl transition">
+                        Begin First Question
+                    </button>
+                </div>
+
+                <!-- QUESTION_ACTIVE State -->
+                <div id="activeControls" class="hidden">
+                    <button onclick="endQuestion()"
+                            class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-6 rounded-lg text-xl transition">
+                        End Question Early
+                    </button>
+                </div>
+
+                <!-- QUESTION_CLOSED State -->
+                <div id="closedControls" class="hidden">
+                    <button onclick="nextQuestion()"
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg text-xl transition">
+                        Next Question
+                    </button>
+                    <button onclick="showResults()"
+                            class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-6 rounded-lg text-xl mt-3 transition">
+                        Show Final Results
+                    </button>
+                </div>
+
+                <!-- RESULT State -->
+                <div id="resultControls" class="hidden">
+                    <div class="bg-gray-800 rounded-lg p-6" id="rankingDisplay"></div>
+                    <button onclick="endQuiz()"
+                            class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-4 px-6 rounded-lg text-xl mt-4 transition">
+                        End Quiz
+                    </button>
+                </div>
+
+                <!-- END State -->
+                <div id="endControls" class="hidden">
+                    <div class="text-center py-8">
+                        <div class="text-2xl mb-4">Quiz Ended</div>
+                        <button onclick="resetSession()"
+                                class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition">
+                            Start New Quiz
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question Bank -->
+            <div class="mt-8 border-t border-gray-700 pt-6">
+                <h2 class="text-xl font-bold mb-4">Question Bank</h2>
+                <div id="questionBank" class="space-y-2"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let ws = null;
+        let currentState = 'IDLE';
+        let timer = null;
+        let timeRemaining = 60;
+        let totalQuestions = 0;
+        let currentQuestionIndex = 0;
+
+        // Connect to WebSocket
+        function connect() {
+            const wsHost = window.location.hostname || 'localhost';
+            ws = new WebSocket(`ws://${wsHost}:8081`);
+
+            ws.onopen = () => {
+                document.getElementById('connectionStatus').textContent = 'Connected';
+                document.getElementById('connectionStatus').className = 'px-3 py-1 rounded-full text-sm bg-green-600';
+                // Register as host
+                ws.send(JSON.stringify({ type: 'host.register' }));
+            };
+
+            ws.onclose = () => {
+                document.getElementById('connectionStatus').textContent = 'Disconnected';
+                document.getElementById('connectionStatus').className = 'px-3 py-1 rounded-full text-sm bg-red-600';
+                // Reconnect after 3 seconds
+                setTimeout(connect, 3000);
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                handleMessage(data);
+            };
+        }
+
+        function handleMessage(data) {
+            console.log('Received:', data);
+
+            switch (data.type) {
+                case 'host.registered':
+                    updatePlayerCount(data.playerCount);
+                    break;
+
+                case 'player.joined':
+                    updatePlayerCount(data.count);
+                    break;
+
+                case 'answer.received':
+                    document.getElementById('answerCount').textContent = data.count;
+                    break;
+
+                case 'question.start':
+                    showQuestion(data);
+                    startTimer(data.timeLimit || 60);
+                    break;
+
+                case 'question.end':
+                    showAnswer(data);
+                    break;
+
+                case 'quiz.finish':
+                    loadResults();
+                    break;
+            }
+        }
+
+        function updateState(newState) {
+            currentState = newState;
+            document.getElementById('stateDisplay').textContent = newState;
+
+            // Hide all control sections
+            ['idleControls', 'waitJoinControls', 'activeControls', 'closedControls', 'resultControls', 'endControls']
+                .forEach(id => document.getElementById(id).classList.add('hidden'));
+
+            // Show appropriate controls
+            switch (newState) {
+                case 'IDLE':
+                    document.getElementById('idleControls').classList.remove('hidden');
+                    break;
+                case 'WAIT_JOIN':
+                    document.getElementById('waitJoinControls').classList.remove('hidden');
+                    break;
+                case 'QUESTION_ACTIVE':
+                    document.getElementById('activeControls').classList.remove('hidden');
+                    document.getElementById('timerSection').classList.remove('hidden');
+                    document.getElementById('questionPreview').classList.remove('hidden');
+                    break;
+                case 'QUESTION_CLOSED':
+                    document.getElementById('closedControls').classList.remove('hidden');
+                    document.getElementById('timerSection').classList.add('hidden');
+                    break;
+                case 'RESULT':
+                    document.getElementById('resultControls').classList.remove('hidden');
+                    document.getElementById('questionPreview').classList.add('hidden');
+                    break;
+                case 'END':
+                    document.getElementById('endControls').classList.remove('hidden');
+                    break;
+            }
+        }
+
+        function updatePlayerCount(count) {
+            document.getElementById('playerCount').textContent = count;
+            document.getElementById('waitPlayerCount').textContent = count;
+        }
+
+        function showQuestion(data) {
+            document.getElementById('questionText').textContent = data.text;
+            const choicesHtml = data.choices.map((choice, i) =>
+                `<div class="bg-white bg-opacity-20 rounded p-3">${['A', 'B', 'C', 'D'][i]}. ${choice}</div>`
+            ).join('');
+            document.getElementById('choicesDisplay').innerHTML = choicesHtml;
+            document.getElementById('questionProgress').textContent = `${data.questionNumber}/${data.totalQuestions}`;
+            currentQuestionIndex = data.questionNumber;
+            totalQuestions = data.totalQuestions;
+            document.getElementById('answerCount').textContent = '0';
+            updateState('QUESTION_ACTIVE');
+        }
+
+        function showAnswer(data) {
+            const choices = document.getElementById('choicesDisplay').children;
+            for (let i = 0; i < choices.length; i++) {
+                if (i === data.correctIndex) {
+                    choices[i].classList.add('bg-green-500', 'bg-opacity-50');
+                }
+            }
+            updateState('QUESTION_CLOSED');
+        }
+
+        function startTimer(seconds) {
+            timeRemaining = seconds;
+            updateTimerDisplay();
+
+            if (timer) clearInterval(timer);
+            timer = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+                if (timeRemaining <= 0) {
+                    clearInterval(timer);
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            document.getElementById('timerText').textContent = timeRemaining;
+            const offset = 283 - (283 * timeRemaining / 60);
+            document.getElementById('timerRing').style.strokeDashoffset = offset;
+
+            // Change color when low
+            const ring = document.getElementById('timerRing');
+            if (timeRemaining <= 10) {
+                ring.style.stroke = '#EF4444';
+            } else if (timeRemaining <= 20) {
+                ring.style.stroke = '#F59E0B';
+            } else {
+                ring.style.stroke = '#10B981';
+            }
+        }
+
+        async function loadResults() {
+            const res = await fetch('/api/result');
+            const data = await res.json();
+
+            let html = '<h3 class="text-xl font-bold mb-4 text-center">Final Rankings</h3>';
+            html += '<div class="space-y-2">';
+
+            data.top3.forEach((player, i) => {
+                const medals = ['text-yellow-400', 'text-gray-300', 'text-amber-600'];
+                html += `<div class="flex justify-between items-center p-3 bg-gray-700 rounded ${i < 3 ? 'border-2 border-' + (i === 0 ? 'yellow' : i === 1 ? 'gray' : 'amber') + '-400' : ''}">
+                    <span class="${medals[i] || ''} font-bold">#${player.rank} ${player.nickname}</span>
+                    <span class="text-xl font-bold">${player.score} pts</span>
+                </div>`;
+            });
+
+            if (data.ranking.length > 3) {
+                html += '<div class="mt-4 text-gray-400 text-sm">Other participants:</div>';
+                data.ranking.slice(3).forEach(player => {
+                    html += `<div class="flex justify-between items-center p-2 bg-gray-800 rounded text-sm">
+                        <span>#${player.rank} ${player.nickname}</span>
+                        <span>${player.score} pts</span>
+                    </div>`;
+                });
+            }
+
+            html += '</div>';
+            document.getElementById('rankingDisplay').innerHTML = html;
+            updateState('RESULT');
+        }
+
+        // Control functions
+        function startQuiz() {
+            ws.send(JSON.stringify({ type: 'host.startQuiz' }));
+            updateState('WAIT_JOIN');
+        }
+
+        function beginFirstQuestion() {
+            ws.send(JSON.stringify({ type: 'host.nextQuestion' }));
+        }
+
+        function nextQuestion() {
+            ws.send(JSON.stringify({ type: 'host.nextQuestion' }));
+        }
+
+        function endQuestion() {
+            ws.send(JSON.stringify({ type: 'host.endQuestion' }));
+        }
+
+        function showResults() {
+            ws.send(JSON.stringify({ type: 'host.showResult' }));
+        }
+
+        function endQuiz() {
+            ws.send(JSON.stringify({ type: 'host.endQuiz' }));
+            updateState('END');
+        }
+
+        async function resetSession() {
+            await fetch('/api/session/reset', { method: 'POST' });
+            updateState('IDLE');
+            document.getElementById('playerCount').textContent = '0';
+            document.getElementById('questionProgress').textContent = '0/0';
+            document.getElementById('answerCount').textContent = '0';
+        }
+
+        // Load question bank
+        async function loadQuestionBank() {
+            const res = await fetch('/api/questions');
+            const questions = await res.json();
+
+            const html = questions.map((q, i) => `
+                <div class="bg-gray-800 rounded p-3">
+                    <div class="font-bold text-sm text-gray-400">Q${i + 1}</div>
+                    <div class="text-white">${q.text}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('questionBank').innerHTML = html || '<p class="text-gray-500">No questions loaded</p>';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            connect();
+            loadQuestionBank();
+        });
+    </script>
+</body>
+</html>

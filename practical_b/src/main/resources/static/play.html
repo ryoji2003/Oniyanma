@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Quiz Festival</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans JP', sans-serif; }
+        .choice-btn {
+            transition: all 0.2s;
+        }
+        .choice-btn:active {
+            transform: scale(0.98);
+        }
+        .choice-btn.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: transparent;
+        }
+        .choice-btn.correct {
+            background: #10B981 !important;
+            border-color: #10B981 !important;
+        }
+        .choice-btn.incorrect {
+            background: #EF4444 !important;
+            border-color: #EF4444 !important;
+        }
+        .timer-bar {
+            transition: width 1s linear;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .pulse-animation {
+            animation: pulse 0.5s ease-in-out;
+        }
+        @keyframes confetti {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        .confetti {
+            animation: confetti 3s ease-out forwards;
+        }
+        .screen {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white">
+    <div id="app">
+        <!-- Join Screen -->
+        <div id="joinScreen" class="screen p-6 justify-center items-center">
+            <div class="w-full max-w-md">
+                <div class="text-center mb-8">
+                    <h1 class="text-4xl font-bold mb-2">Quiz Festival</h1>
+                    <p class="text-purple-200">Museum Quiz Event</p>
+                </div>
+
+                <div class="bg-white bg-opacity-10 backdrop-blur rounded-2xl p-6">
+                    <label class="block text-sm text-purple-200 mb-2">Your Nickname</label>
+                    <input type="text" id="nicknameInput"
+                           class="w-full bg-white bg-opacity-20 rounded-lg px-4 py-3 text-white placeholder-purple-300 outline-none focus:ring-2 focus:ring-purple-400"
+                           placeholder="Enter your name" maxlength="20">
+
+                    <button onclick="joinQuiz()"
+                            class="w-full mt-4 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold py-4 rounded-xl text-lg transition">
+                        Join Quiz
+                    </button>
+                </div>
+
+                <p class="text-center text-purple-300 text-sm mt-4" id="joinStatus"></p>
+            </div>
+        </div>
+
+        <!-- Waiting Screen -->
+        <div id="waitingScreen" class="screen hidden p-6 justify-center items-center">
+            <div class="text-center">
+                <div class="w-24 h-24 border-4 border-purple-300 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+                <h2 class="text-2xl font-bold mb-2">Get Ready!</h2>
+                <p class="text-purple-200" id="waitingMessage">Waiting for the quiz to start...</p>
+                <div class="mt-6 bg-white bg-opacity-10 rounded-xl p-4">
+                    <p class="text-sm text-purple-300">Your ID</p>
+                    <p class="text-xl font-bold" id="displayPlayerId"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Question Screen -->
+        <div id="questionScreen" class="screen hidden p-4">
+            <!-- Timer Bar -->
+            <div class="bg-gray-800 rounded-full h-3 mb-4 overflow-hidden">
+                <div id="timerBar" class="timer-bar h-full bg-gradient-to-r from-green-400 to-emerald-500" style="width: 100%"></div>
+            </div>
+
+            <!-- Question Number & Timer -->
+            <div class="flex justify-between items-center mb-4">
+                <span class="bg-purple-600 px-3 py-1 rounded-full text-sm" id="questionNumber">Q1/5</span>
+                <span class="text-2xl font-bold" id="timerText">60</span>
+            </div>
+
+            <!-- Question Text -->
+            <div class="bg-white bg-opacity-10 backdrop-blur rounded-2xl p-6 mb-6 flex-grow-0">
+                <p class="text-xl font-bold leading-relaxed" id="questionText"></p>
+            </div>
+
+            <!-- Choices -->
+            <div class="space-y-3 flex-grow" id="choicesContainer"></div>
+
+            <!-- Answer Status -->
+            <div id="answerStatus" class="hidden text-center py-4">
+                <div class="text-lg font-bold" id="statusText"></div>
+            </div>
+        </div>
+
+        <!-- Answer Result Screen -->
+        <div id="answerResultScreen" class="screen hidden p-6 justify-center items-center">
+            <div class="text-center w-full max-w-md">
+                <div id="resultIcon" class="text-8xl mb-4"></div>
+                <h2 id="resultTitle" class="text-3xl font-bold mb-2"></h2>
+                <p id="resultExplanation" class="text-purple-200 mb-6"></p>
+                <div class="bg-white bg-opacity-10 rounded-xl p-4">
+                    <p class="text-sm text-purple-300">Correct Answer</p>
+                    <p class="text-xl font-bold" id="correctAnswerText"></p>
+                </div>
+                <p class="text-purple-300 mt-6">Waiting for next question...</p>
+            </div>
+        </div>
+
+        <!-- Final Result Screen -->
+        <div id="resultScreen" class="screen hidden p-6">
+            <div class="text-center mb-6">
+                <h1 class="text-3xl font-bold">Quiz Complete!</h1>
+            </div>
+
+            <!-- Personal Score -->
+            <div class="bg-gradient-to-r from-yellow-500 to-orange-500 rounded-2xl p-6 mb-6 text-center">
+                <p class="text-sm opacity-75">Your Score</p>
+                <p class="text-5xl font-bold my-2" id="personalScore">0</p>
+                <p class="text-lg" id="personalRank">Rank #1</p>
+            </div>
+
+            <!-- Top 3 -->
+            <div class="mb-6">
+                <h2 class="text-xl font-bold mb-4 text-center">Top 3</h2>
+                <div class="space-y-3" id="top3Container"></div>
+            </div>
+
+            <!-- Full Ranking -->
+            <div class="bg-white bg-opacity-10 rounded-xl p-4">
+                <h3 class="font-bold mb-3">All Rankings</h3>
+                <div class="space-y-2 max-h-60 overflow-y-auto" id="fullRanking"></div>
+            </div>
+
+            <!-- Play Again -->
+            <button onclick="location.reload()"
+                    class="w-full mt-6 bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 rounded-xl text-lg transition">
+                Play Again
+            </button>
+        </div>
+    </div>
+
+    <!-- Confetti Container -->
+    <div id="confettiContainer" class="fixed inset-0 pointer-events-none overflow-hidden"></div>
+
+    <script>
+        let ws = null;
+        let playerId = null;
+        let currentQuestionId = null;
+        let selectedChoice = null;
+        let timerInterval = null;
+        let timeRemaining = 60;
+
+        // Screens
+        const screens = {
+            join: document.getElementById('joinScreen'),
+            waiting: document.getElementById('waitingScreen'),
+            question: document.getElementById('questionScreen'),
+            answerResult: document.getElementById('answerResultScreen'),
+            result: document.getElementById('resultScreen')
+        };
+
+        function showScreen(name) {
+            Object.values(screens).forEach(s => s.classList.add('hidden'));
+            screens[name].classList.remove('hidden');
+        }
+
+        // Connect to WebSocket
+        function connectWebSocket() {
+            const wsHost = window.location.hostname || 'localhost';
+            ws = new WebSocket(`ws://${wsHost}:8081`);
+
+            ws.onopen = () => {
+                console.log('WebSocket connected');
+            };
+
+            ws.onclose = () => {
+                console.log('WebSocket disconnected');
+                setTimeout(connectWebSocket, 3000);
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                handleMessage(data);
+            };
+        }
+
+        function handleMessage(data) {
+            console.log('Received:', data);
+
+            switch (data.type) {
+                case 'connected':
+                    if (data.state === 'WAIT_JOIN' || data.state === 'IDLE') {
+                        // Can join
+                    } else if (data.state === 'QUESTION_ACTIVE' && playerId) {
+                        showScreen('question');
+                    }
+                    break;
+
+                case 'session.waitingForPlayers':
+                case 'quiz.starting':
+                    if (playerId) {
+                        showScreen('waiting');
+                        document.getElementById('waitingMessage').textContent = 'Quiz is about to start!';
+                    }
+                    break;
+
+                case 'question.start':
+                    showQuestion(data);
+                    break;
+
+                case 'question.end':
+                    showQuestionResult(data);
+                    break;
+
+                case 'quiz.finish':
+                    loadFinalResults();
+                    break;
+
+                case 'session.reset':
+                    location.reload();
+                    break;
+            }
+        }
+
+        async function joinQuiz() {
+            const nickname = document.getElementById('nicknameInput').value.trim();
+
+            try {
+                const res = await fetch('/api/join', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nickname })
+                });
+
+                const data = await res.json();
+                playerId = data.playerId;
+
+                document.getElementById('displayPlayerId').textContent = playerId;
+                showScreen('waiting');
+
+                // Connect to WebSocket after joining
+                if (!ws || ws.readyState !== WebSocket.OPEN) {
+                    connectWebSocket();
+                }
+
+            } catch (error) {
+                document.getElementById('joinStatus').textContent = 'Error joining. Please try again.';
+            }
+        }
+
+        function showQuestion(data) {
+            currentQuestionId = data.questionId;
+            selectedChoice = null;
+            timeRemaining = data.timeLimit || 60;
+
+            document.getElementById('questionNumber').textContent = `Q${data.questionNumber}/${data.totalQuestions}`;
+            document.getElementById('questionText').textContent = data.text;
+
+            // Create choice buttons
+            const container = document.getElementById('choicesContainer');
+            container.innerHTML = '';
+
+            const labels = ['A', 'B', 'C', 'D'];
+            data.choices.forEach((choice, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn w-full bg-white bg-opacity-10 border-2 border-white border-opacity-20 rounded-xl p-4 text-left flex items-center gap-3';
+                btn.innerHTML = `
+                    <span class="w-10 h-10 rounded-full bg-white bg-opacity-20 flex items-center justify-center font-bold">${labels[index]}</span>
+                    <span class="flex-grow">${choice}</span>
+                `;
+                btn.onclick = () => selectChoice(index, btn);
+                container.appendChild(btn);
+            });
+
+            // Start timer
+            updateTimerDisplay();
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                }
+            }, 1000);
+
+            showScreen('question');
+            document.getElementById('answerStatus').classList.add('hidden');
+        }
+
+        function updateTimerDisplay() {
+            document.getElementById('timerText').textContent = timeRemaining;
+            const percent = (timeRemaining / 60) * 100;
+            document.getElementById('timerBar').style.width = percent + '%';
+
+            // Change color based on time
+            const bar = document.getElementById('timerBar');
+            if (timeRemaining <= 10) {
+                bar.className = 'timer-bar h-full bg-red-500';
+            } else if (timeRemaining <= 20) {
+                bar.className = 'timer-bar h-full bg-yellow-500';
+            } else {
+                bar.className = 'timer-bar h-full bg-gradient-to-r from-green-400 to-emerald-500';
+            }
+        }
+
+        async function selectChoice(index, btn) {
+            if (selectedChoice !== null) return; // Already answered
+
+            selectedChoice = index;
+
+            // Visual feedback
+            document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            btn.classList.add('pulse-animation');
+
+            // Show status
+            document.getElementById('answerStatus').classList.remove('hidden');
+            document.getElementById('statusText').textContent = 'Answer submitted!';
+
+            // Submit answer
+            try {
+                await fetch('/api/answer', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        playerId,
+                        questionId: currentQuestionId,
+                        choice: index
+                    })
+                });
+            } catch (error) {
+                console.error('Error submitting answer:', error);
+            }
+        }
+
+        function showQuestionResult(data) {
+            clearInterval(timerInterval);
+
+            const isCorrect = selectedChoice === data.correctIndex;
+
+            // Update choice buttons
+            const buttons = document.querySelectorAll('.choice-btn');
+            buttons.forEach((btn, i) => {
+                if (i === data.correctIndex) {
+                    btn.classList.add('correct');
+                } else if (i === selectedChoice && !isCorrect) {
+                    btn.classList.add('incorrect');
+                }
+            });
+
+            // Show result screen after a moment
+            setTimeout(() => {
+                document.getElementById('resultIcon').textContent = isCorrect ? '🎉' : '😢';
+                document.getElementById('resultTitle').textContent = isCorrect ? 'Correct!' : 'Wrong!';
+                document.getElementById('resultExplanation').textContent = data.explanation || '';
+                document.getElementById('correctAnswerText').textContent = data.correctAnswer;
+                showScreen('answerResult');
+            }, 1500);
+        }
+
+        async function loadFinalResults() {
+            try {
+                const res = await fetch(`/api/result?playerId=${playerId}`);
+                const data = await res.json();
+
+                // Personal score
+                if (data.personal) {
+                    document.getElementById('personalScore').textContent = data.personal.score;
+                    document.getElementById('personalRank').textContent = `Rank #${data.personal.rank}`;
+                }
+
+                // Top 3
+                const top3Container = document.getElementById('top3Container');
+                const medals = ['🥇', '🥈', '🥉'];
+                const colors = ['from-yellow-400 to-yellow-600', 'from-gray-300 to-gray-500', 'from-amber-500 to-amber-700'];
+
+                top3Container.innerHTML = data.top3.map((p, i) => `
+                    <div class="bg-gradient-to-r ${colors[i]} rounded-xl p-4 flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">${medals[i]}</span>
+                            <span class="font-bold">${p.nickname}</span>
+                        </div>
+                        <span class="text-xl font-bold">${p.score} pts</span>
+                    </div>
+                `).join('');
+
+                // Full ranking
+                const fullRanking = document.getElementById('fullRanking');
+                fullRanking.innerHTML = data.ranking.map(p => `
+                    <div class="flex justify-between items-center p-2 ${p.nickname === data.personal?.nickname ? 'bg-purple-600 rounded' : ''}">
+                        <span>#${p.rank} ${p.nickname}</span>
+                        <span>${p.score} pts</span>
+                    </div>
+                `).join('');
+
+                showScreen('result');
+
+                // Confetti for top 3
+                if (data.personal && data.personal.rank <= 3) {
+                    createConfetti();
+                }
+
+            } catch (error) {
+                console.error('Error loading results:', error);
+            }
+        }
+
+        function createConfetti() {
+            const container = document.getElementById('confettiContainer');
+            const colors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7'];
+
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti absolute w-3 h-3 rounded';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                container.appendChild(confetti);
+            }
+
+            setTimeout(() => container.innerHTML = '', 5000);
+        }
+
+        // Handle Enter key in nickname input
+        document.getElementById('nicknameInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') joinQuiz();
+        });
+
+        // Connect on load
+        document.addEventListener('DOMContentLoaded', connectWebSocket);
+    </script>
+</body>
+</html>

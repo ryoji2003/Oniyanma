@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>問題投稿 | 福島県立博物館 検定フェス</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="page">
+      <!-- ヘッダー -->
+      <header class="app-header">
+        <div class="brand">
+          <div class="brand-mark">福</div>
+          <div class="brand-text">
+            <div class="app-title">福島県立博物館 検定フェス</div>
+            <div class="app-subtitle">出題フェーズ / 問題投稿</div>
+          </div>
+        </div>
+
+        <ol class="steps">
+          <li class="step disabled">
+            <span class="step-index">1</span> テーマ設定
+          </li>
+          <li class="step disabled">
+            <span class="step-index">2</span> 問題作成
+          </li>
+          <li class="step current">
+            <span class="step-index">3</span> 問題投稿
+          </li>
+          <li class="step disabled">
+            <span class="step-index">4</span> 検定フェス本番
+          </li>
+        </ol>
+      </header>
+
+      <!-- メインレイアウト -->
+      <main class="layout">
+        <!-- 左側：投稿フロー -->
+        <section class="card main-card">
+          <h1>問題投稿</h1>
+          <p class="card-description">
+            下書き一覧から投稿する問題を選び、確認して送信します。
+          </p>
+
+          <!-- 下書き問題一覧 -->
+          <label class="field-label">下書き問題一覧</label>
+          <select id="draftSelect"></select>
+
+          <!-- プレビュー -->
+          <div class="preview">
+            <strong>問題文：</strong>
+            <p>この道具は主にどのような目的で使われていましたか？</p>
+
+            <strong>選択肢：</strong>
+            <ul>
+              <li>田畑を耕すため</li>
+              <li>貨幣として使うため</li>
+              <li>文字を書くため</li>
+              <li>絵を飾るため</li>
+            </ul>
+
+            <strong>正解：</strong>
+            <p>田畑を耕すため</p>
+          </div>
+
+          <!-- 送信ボタン -->
+          <div class="actions">
+            <button class="btn-primary">送信</button>
+          </div>
+
+          <!-- 完了メッセージ -->
+          <p class="message success">投稿が完了しました。審査待ちです。</p>
+        </section>
+
+        <!-- 右側：説明 -->
+        <aside class="card side-card">
+          <h2>この画面でできること</h2>
+          <ul class="feature-list">
+            <li>ログイン後、下書き問題一覧から投稿対象を選択</li>
+            <li>問題文・選択肢・正解を確認</li>
+            <li>送信ボタンで審査に提出</li>
+          </ul>
+
+          <h3>投稿の流れ</h3>
+          <ul class="hint-list">
+            <li>システムが入力をチェックし、エラーがなければDBに登録</li>
+            <li>投稿完了メッセージが表示されます</li>
+            <li>審査後に採用／不採用の結果が届きます</li>
+          </ul>
+        </aside>
+      </main>
+
+      <footer class="app-footer">
+        <span>© 福島県立博物館 検定フェス 実証アプリケーション</span>
+      </footer>
+    </div>
+  </body>
+</html>

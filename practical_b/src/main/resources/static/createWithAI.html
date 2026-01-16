@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <title>問題作成 | 福島県立博物館 検定フェス</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        /* チャット風UI追加 */
+        .chat-box {
+          margin-top: 16px;
+          padding: 12px;
+          border-radius: 12px;
+          background: #f9fafb;
+          font-size: 14px;
+          line-height: 1.6;
+          max-height: 500px;
+          overflow-y: auto;
+        }
+        .chat-message {
+          margin-bottom: 12px;
+          padding: 10px;
+          border-radius: 8px;
+        }
+        .chat-message.ai {
+          background: #eff6ff;
+          color: #1d4ed8;
+        }
+        .chat-message.user {
+          background: #ecfdf3;
+          color: #166534;
+          text-align: right;
+        }
+        /* 資料/切り口選択ボタンのスタイル */
+        .material-select, .btn-small {
+            font-size: 12px;
+            padding: 4px 8px;
+            margin: 4px 0;
+            display: block; /* 縦に並べる */
+            width: 100%;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <header class="app-header">
+        <div class="brand">
+            <div class="brand-mark">福</div>
+            <div class="brand-text">
+                <div class="app-title">福島県立博物館 検定フェス</div>
+                <div class="app-subtitle">出題フェーズ / 問題作成</div>
+            </div>
+        </div>
+
+        <ol class="steps">
+            <li class="step disabled">
+                <span class="step-index">1</span> テーマ設定
+            </li>
+            <li class="step current">
+                <span class="step-index">2</span> 問題作成
+            </li>
+            <li class="step disabled">
+                <span class="step-index">3</span> 検定フェス本番
+            </li>
+        </ol>
+    </header>
+
+    <main class="layout">
+        <section class="card main-card">
+            <h1>問題作成</h1>
+            <p class="card-description">
+                当年度のテーマに基づいて問題を作成します。以下のステップに従って進めてください。
+            </p>
+
+            <div class="info-row">
+                <div class="info-label">今年度テーマ</div>
+                <div class="info-value"><span id="aiTheme">例：道具</span></div>
+            </div>
+
+            <label class="field-label">時代・カテゴリを選択</label>
+            <select>
+                <option>原始</option>
+                <option>古代</option>
+                <option>中世</option>
+                <option>近世</option>
+                <option>近現代</option>
+            </select>
+
+            <div class="preview">
+                <strong>展示資料候補一覧（いずれかを選択）</strong>
+                <ul id="materialList">
+                    <li><button class="btn-secondary material-select" data-material="千歯扱き（脱穀具）">千歯扱き（脱穀具）</button></li>
+                    <li><button class="btn-secondary material-select" data-material="紀年銘民具（農具）">紀年銘民具（農具）</button></li>
+                    <li><button class="btn-secondary material-select" data-material="田下駄（水田農具）">田下駄（水田農具）</button></li>
+                    <li><button class="btn-secondary material-select" data-material="会津農書（古文書）">会津農書（古文書）</button></li>
+                </ul>
+            </div>
+
+            <div class="note-box">
+                選択された対象の解説文（例：出土場所・時代・特徴）がここに表示されます。（デモ）
+            </div>
+
+            <div class="actions">
+                <button class="btn-primary">問題作成</button>
+            </div>
+
+            <p id="aiMessage" class="message"></p>
+        </section>
+
+        <aside class="card side-card">
+            <h2>AIとの対話</h2>
+            <div class="chat-box" id="chatLog">
+
+                <div class="chat-message ai" id="step1">
+                    AI:
+                    今年度の農業テーマに基づき、問題作成を始めます。
+                    左側の**「展示資料候補一覧」**から、どの資料を選んで問題を作成しますか？
+                </div>
+
+                <div id="step2UserSelection" hidden>
+                </div>
+
+                <div id="step3CutProposal" hidden>
+                    <div class="chat-message ai" id="cutProposalText">
+                    </div>
+                </div>
+
+                <div id="step4QuizProposal" hidden>
+                    <div class="chat-message user" id="userCutSelectionLog"></div>
+                    <div class="chat-message ai" id="quizProposalText">
+                        Q1:
+                        福島県立博物館に収蔵されている農具の中には、購入した年月日や金額、店名などが墨で書かれているものがあります。これらは何と呼ばれていますか？<br />
+                        <button id="btnAIAdoptQuestion" class="btn-primary">採用</button>
+                        <button class="btn-secondary">修正依頼</button>
+                    </div>
+                </div>
+
+                <div id="step5Choices" hidden>
+                    <div class="chat-message user">参加者: 採用します。</div>
+                    <div class="chat-message ai">
+                        AI: 選択肢案を生成しました。<br />
+                        ア. 紀年銘民具<br />
+                        イ. 墨書土器<br />
+                        ウ. 履歴付き農具<br />
+                        エ. 覚書道具<br />
+                        <button id="btnAiAdoptChoices" class="btn-primary">採用</button>
+                        <button class="btn-secondary">不採用</button>
+                    </div>
+                </div>
+
+            </div>
+        </aside>
+    </main>
+
+    <footer class="app-footer">
+        <span>© 福島県立博物館 検定フェス 実証アプリケーション</span>
+    </footer>
+</div>
+<script src="createWithAI.js"></script>
+</body>
+</html>

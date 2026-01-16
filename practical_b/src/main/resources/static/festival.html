@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Festival - Museum Event</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Zen+Old+Mincho&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans JP', sans-serif; }
+        .title-font { font-family: 'Zen Old Mincho', serif; }
+        .card-hover {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-amber-50 to-orange-100 min-h-screen">
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="title-font text-5xl font-bold text-amber-900 mb-4">Quiz Festival</h1>
+            <p class="text-xl text-amber-700">Museum Quiz Event</p>
+            <div class="mt-4 inline-block bg-amber-200 px-4 py-2 rounded-full text-amber-800 text-sm">
+                LAN Network Event
+            </div>
+        </header>
+
+        <!-- Main Cards -->
+        <div class="grid md:grid-cols-2 gap-8 mb-12">
+            <!-- Host Card -->
+            <a href="host.html" class="card-hover block bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl p-8 text-white shadow-xl">
+                <div class="text-6xl mb-4 float-animation">🎮</div>
+                <h2 class="text-2xl font-bold mb-2">Host Control</h2>
+                <p class="text-purple-200 mb-4">Control the quiz, manage questions, and display rankings</p>
+                <div class="flex items-center text-purple-200">
+                    <span>Open Host Panel</span>
+                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </div>
+            </a>
+
+            <!-- Participant Card -->
+            <a href="play.html" class="card-hover block bg-gradient-to-br from-pink-500 to-rose-600 rounded-2xl p-8 text-white shadow-xl">
+                <div class="text-6xl mb-4 float-animation" style="animation-delay: 0.5s;">🎯</div>
+                <h2 class="text-2xl font-bold mb-2">Join Quiz</h2>
+                <p class="text-pink-200 mb-4">Participate in the quiz and compete for the top ranking</p>
+                <div class="flex items-center text-pink-200">
+                    <span>Join as Participant</span>
+                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </div>
+            </a>
+        </div>
+
+        <!-- QR Code Section -->
+        <div class="bg-white rounded-2xl p-8 shadow-lg text-center mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Scan to Join</h2>
+            <div class="inline-block bg-gray-100 p-4 rounded-xl mb-4">
+                <div id="qrcode" class="w-48 h-48 mx-auto flex items-center justify-center">
+                    <div class="text-gray-400">Loading QR...</div>
+                </div>
+            </div>
+            <p class="text-gray-600 mb-2">Participant URL:</p>
+            <code id="participantUrl" class="bg-gray-100 px-4 py-2 rounded text-amber-700 font-mono"></code>
+            <div class="mt-4">
+                <button onclick="copyUrl()" class="bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-lg transition">
+                    Copy URL
+                </button>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="bg-white rounded-2xl p-8 shadow-lg mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">How to Play</h2>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="font-bold text-lg text-purple-700 mb-3">For Host</h3>
+                    <ol class="space-y-2 text-gray-600">
+                        <li class="flex gap-2">
+                            <span class="bg-purple-100 text-purple-700 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">1</span>
+                            <span>Open the Host Control panel</span>
+                        </li>
+                        <li class="flex gap-2">
+                            <span class="bg-purple-100 text-purple-700 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">2</span>
+                            <span>Click "Start Quiz" to open registration</span>
+                        </li>
+                        <li class="flex gap-2">
+                            <span class="bg-purple-100 text-purple-700 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">3</span>
+                            <span>Wait for participants to join</span>
+                        </li>
+                        <li class="flex gap-2">
+                            <span class="bg-purple-100 text-purple-700 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">4</span>
+                            <span>Begin questions and control the pace</span>
+                        </li>
+                    </ol>
+                </div>
+
+                <div>
+                    <h3 class="font-bold text-lg text-pink-700 mb-3">For Participants</h3>
+                    <ol class="space-y-2 text-gray-600">
+                        <li class="flex gap-2">
+                            <span class="bg-pink-100 text-pink-700 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">1</span>
+                            <span>Connect to the museum Wi-Fi</span>
+                        </li>
+                        <li class="flex gap-2">
+                            <span class="bg-pink-100 text-pink-700 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">2</span>
+                            <span>Scan the QR code or enter the URL</span>
+                        </li>
+                        <li class="flex gap-2">
+                            <span class="bg-pink-100 text-pink-700 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">3</span>
+                            <span>Enter your nickname and join</span>
+                        </li>
+                        <li class="flex gap-2">
+                            <span class="bg-pink-100 text-pink-700 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold">4</span>
+                            <span>Answer questions within 60 seconds</span>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center text-amber-700">
+            <p>Museum Quiz Festival System</p>
+            <p class="text-sm text-amber-600">LAN-based real-time quiz experience</p>
+        </footer>
+    </div>
+
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script>
+        // Detect the current URL and generate QR code
+        const baseUrl = window.location.origin;
+        const participantUrl = baseUrl + '/play.html';
+
+        document.getElementById('participantUrl').textContent = participantUrl;
+
+        // Generate QR code
+        if (typeof QRCode !== 'undefined') {
+            const canvas = document.createElement('canvas');
+            QRCode.toCanvas(canvas, participantUrl, {
+                width: 192,
+                margin: 2,
+                color: {
+                    dark: '#1f2937',
+                    light: '#f3f4f6'
+                }
+            }, function(error) {
+                if (error) {
+                    console.error(error);
+                    document.getElementById('qrcode').innerHTML = '<div class="text-gray-400">QR generation failed</div>';
+                } else {
+                    document.getElementById('qrcode').innerHTML = '';
+                    document.getElementById('qrcode').appendChild(canvas);
+                }
+            });
+        }
+
+        function copyUrl() {
+            navigator.clipboard.writeText(participantUrl).then(() => {
+                const btn = event.target;
+                btn.textContent = 'Copied!';
+                setTimeout(() => btn.textContent = 'Copy URL', 2000);
+            });
+        }
+    </script>
+</body>
+</html>

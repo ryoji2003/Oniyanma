@@ -8,7 +8,7 @@ from langchain_core.output_parsers import StrOutputParser
 # .envファイルから環境変数を読み込む
 load_dotenv()
 
-# 設定gti
+# 設定
 INPUT_FILE = "data.json"
 OUTPUT_FILE = "data_updated.json"
 
