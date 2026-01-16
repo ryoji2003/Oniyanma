@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>問題に挑戦 | 福島県立博物館 検定フェス</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="page">
+
+    <header class="app-header">
+        <div class="brand">
+            <div class="brand-mark">福</div>
+            <div class="brand-text">
+                <div class="app-title">福島県立博物館 検定フェス</div>
+                <div class="app-subtitle">検定フェス / 問題に挑戦</div>
+            </div>
+        </div>
+        <ol class="steps">
+            <li class="step disabled"><span class="step-index">1</span> テーマ設定</li>
+            <li class="step disabled"><span class="step-index">2</span> 問題作成</li>
+            <li class="step current"><span class="step-index">3</span> 検定フェス本番</li>
+        </ol>
+    </header>
+
+    <main class="layout quiz-layout">
+
+        <section class="card main-card" id="startScreen">
+            <h1>検定フェス「<span id="themeNameStart">（テーマ読込中...）</span>」</h1>
+            <p class="card-description">
+                博物館専用Wi-Fiに接続されています。<br>
+                参加するニックネームを入力して、開始を待機してください。
+            </p>
+
+            <div class="field-row center-column">
+                <label for="usernameInput" class="field-label">ニックネーム</label>
+                <input type="text" id="usernameInput" placeholder="例：会津 太郎" style="font-size:1.2rem; padding:0.5rem;">
+            </div>
+
+            <div class="actions center">
+                <button id="startBtn" class="btn-primary">
+                    クイズに参加する
+                </button>
+            </div>
+            <div style="text-align:center; margin-top:20px;">
+                <button id="resetDemoBtn" class="btn-secondary" style="font-size:0.8rem;">(デモ用) データリセット</button>
+            </div>
+        </section>
+
+        <section class="card main-card" id="quizScreen" hidden>
+            <div class="quiz-header-row">
+                <div class="quiz-progress">
+                    問題 <span id="currentIndex">1</span> / <span id="totalCount">3</span>
+                </div>
+                <div class="quiz-score">
+                    現在のスコア：<span id="currentScore">0</span> 点
+                </div>
+            </div>
+
+            <h1 id="questionText">問題文ロード中...</h1>
+            <div id="choices" class="choice-list"></div>
+            <p id="quizMessage" class="message"></p>
+        </section>
+
+        <section class="card main-card" id="resultScreen" hidden>
+            <h1>回答終了</h1>
+            <p class="card-description">
+                お疲れ様でした！あなたの結果は以下の通りです。
+            </p>
+
+            <div class="result-summary-box">
+                <div class="result-score">
+                    <span class="result-label">あなたのスコア</span>
+                    <span class="result-value"><span id="finalScore">0</span> 点</span>
+                </div>
+            </div>
+
+            <p style="text-align:center;">全員の回答が終わるまでお待ちください。</p>
+
+            <div class="actions center">
+                <button id="showRankingBtn" class="btn-primary">
+                    結果集計・ランキングを見る
+                </button>
+            </div>
+        </section>
+
+        <section class="card main-card" id="rankingScreen" hidden>
+            <h1>🏆 検定フェス 結果発表 🏆</h1>
+            <p class="card-description">
+                「<span id="themeNameRanking"></span>」杯 最終順位
+            </p>
+
+            <div class="ranking-container">
+                <table class="ranking-table">
+                    <thead>
+                    <tr>
+                        <th>順位</th>
+                        <th>名前</th>
+                        <th>スコア</th>
+                    </tr>
+                    </thead>
+                    <tbody id="rankingBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="winnerDisplay" class="winner-box" hidden>
+                優勝は <span id="winnerName"></span> さんです！<br>おめでとうございます！
+            </div>
+
+            <div class="actions center">
+                <button onclick="location.reload()" class="btn-secondary">トップに戻る</button>
+                <button id="resetRankingBtn" class="btn-primary" style="background-color: #ef4444; margin-left: 10px;">
+                    結果をリセットして次へ
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="app-footer">
+        <span>© 福島県立博物館 検定フェス 実証アプリケーション</span>
+    </footer>
+</div>
+<script src="quiz.js"></script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>福島県立博物館 Fukushima Museum</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* このページ専用の「本物っぽい」スタイル */
+        body.museum-site {
+            background-color: #ffffff;
+            font-family: "Yu Mincho", "Hiragino Mincho ProN", serif; /* 明朝体で格式高く */
+            color: #333;
+        }
+        .museum-header {
+            border-bottom: 4px solid #b91c1c; /* 伝統的な赤 */
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .museum-logo {
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        .museum-nav ul {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+            font-size: 14px;
+            font-family: sans-serif;
+        }
+        .hero-section {
+            background-color: #333; /* 画像が読み込まれるまでの背景色 */
+            height: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* 新しい画像（会津風の風景）と、それを少し暗くするフィルター */
+            background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1691750009819-776bdcc83607?q=80&w=1973&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            font-size: 40px;
+            font-weight: bold; /* 文字を少し太くして強調 */
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.8); /* 文字の影を強くして読みやすく */
+            letter-spacing: 0.1em; /* 文字の間隔を少し広げて情緒を出す */
+        }
+        .news-section {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .news-section h2 {
+            border-left: 5px solid #b91c1c;
+            padding-left: 15px;
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+        /* 目を引くイベントバナー風エリア */
+        .featured-event {
+            background: #fffaf0;
+            border: 2px solid #fcd34d;
+            padding: 30px;
+            display: flex;
+            gap: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+        .featured-event:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0,0,0,0.15);
+        }
+        .event-image {
+            width: 200px;
+            height: 150px;
+            background-color: #fbbf24;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: #fff;
+            font-size: 18px;
+        }
+        .event-content h3 {
+            color: #b91c1c;
+            margin-top: 0;
+            font-size: 22px;
+        }
+        .catch-copy {
+            font-weight: bold;
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        .event-detail {
+            font-size: 14px;
+            color: #555;
+            font-family: sans-serif;
+        }
+        .museum-footer {
+            background: #333;
+            color: white;
+            padding: 40px;
+            text-align: center;
+            font-size: 12px;
+            font-family: sans-serif;
+            margin-top: 60px;
+        }
+    </style>
+</head>
+<body class="museum-site">
+
+<header class="museum-header">
+    <div class="museum-logo">福島県立博物館</div>
+    <nav class="museum-nav">
+        <ul>
+            <li>利用案内</li>
+            <li>展示案内</li>
+            <li>イベント・講座</li>
+            <li>調査・研究</li>
+            <li>アクセス</li>
+        </ul>
+    </nav>
+</header>
+
+<div class="hero-section">
+    未来へつなぐ、福島の記憶。
+</div>
+
+<section class="news-section">
+    <h2>新着情報・お知らせ</h2>
+
+    <a href="fes_intro.html" class="featured-event">
+        <div class="event-image">
+            KENTEI FES<br>2025
+        </div>
+        <div class="event-content">
+            <span style="background:#b91c1c; color:white; padding:2px 8px; font-size:12px; border-radius:4px;">イベント募集中</span>
+            <h3>【初開催】みんなで作る博物館クイズ大会「検定フェス」開催決定！</h3>
+
+            <p class="catch-copy">
+                あなたの「好き」が、博物館の新たな歴史になる。<br>
+                展示品を見て、クイズを作り、みんなで解く。知識と郷土愛を競い合う熱狂の1日。<br>
+                ただ見るだけじゃない、参加する博物館へ。あなたも挑戦しませんか？
+            </p>
+            <p class="event-detail">
+                開催日：2025年12月20日（土） / 会場：福島県立博物館 企画展示室<br>
+                <span style="color:#b91c1c; font-weight:bold;">👉 詳細・エントリーはこちらをクリック</span>
+            </p>
+        </div>
+    </a>
+
+    <div style="margin-top:20px; padding:15px; border-bottom:1px solid #ddd; font-family:sans-serif;">
+        <span style="color:#666; font-size:12px;">2025.12.10</span>
+        <span style="margin-left:15px;">常設展示室の一部展示替えについて</span>
+    </div>
+    <div style="padding:15px; border-bottom:1px solid #ddd; font-family:sans-serif;">
+        <span style="color:#666; font-size:12px;">2025.12.01</span>
+        <span style="margin-left:15px;">年末年始の休館日のお知らせ</span>
+    </div>
+</section>
+
+<footer class="museum-footer">
+    〒965-0807 福島県会津若松市城東町1-25<br>
+    Copyright © Fukushima Museum. All Rights Reserved.
+</footer>
+
+</body>
+</html>

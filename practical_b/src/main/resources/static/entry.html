@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>参加登録 | 検定フェス2025</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="page">
+    <header class="app-header">
+        <div class="brand">
+            <div class="brand-mark">福</div>
+            <div class="brand-text">
+                <div class="app-title">福島県立博物館 検定フェス</div>
+                <div class="app-subtitle">参加申し込み</div>
+            </div>
+        </div>
+    </header>
+
+    <main class="layout">
+        <section class="card main-card">
+            <h1>フェス参加登録</h1>
+            <p class="card-description">
+                検定フェス当日のクイズ大会への事前エントリーを受け付けます。<br>
+                当日使用するニックネームを登録してください。
+            </p>
+
+            <form id="entryForm" class="theme-form">
+                <div class="form-group">
+                    <label>お名前（本名）</label>
+                    <input type="text" placeholder="例）山田 太郎" required>
+                </div>
+
+                <div class="form-group">
+                    <label>メールアドレス</label>
+                    <input type="email" placeholder="example@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label>年代</label>
+                    <select>
+                        <option>10代</option>
+                        <option>20代</option>
+                        <option>30代</option>
+                        <option>40代</option>
+                        <option>50代以上</option>
+                    </select>
+                </div>
+                <div class="actions center" style="margin-top:40px;">
+                    <button type="submit" class="btn-primary" style="padding:15px 40px; font-size:1.2rem;">
+                        登録して当日を待つ
+                    </button>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+
+<script>
+    document.getElementById('entryForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        alert('【登録完了】\nありがとうございます。エントリーを受け付けました。\n\n（デモ用：このまま当日のクイズ画面へ移動します）');
+        window.location.href = 'quiz.html';
+    });
+</script>
+</body>
+</html>
